@@ -53,7 +53,7 @@ Since `cerulean` bundles 2,500+ different color palettes, we recommend using the
 ## Installation
 
 ```bash
-cargo add --git https://github.com/y-sunflower/cerulean
+cargo add cerulean
 ```
 
 <br>
