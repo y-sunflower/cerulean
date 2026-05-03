@@ -17,9 +17,12 @@
 //! assert_eq!(kind, "qualitative");
 //! ```
 
+use flate2::read::GzDecoder;
 use serde::{Deserialize, Deserializer};
 use std::collections::HashMap;
 use std::error::Error;
+use std::io::Read;
+use std::sync::OnceLock;
 
 #[derive(Deserialize)]
 struct Palette {
@@ -29,6 +32,9 @@ struct Palette {
     source: String,
     kind: Option<String>,
 }
+
+// avoid decompress-parse-build every time we need palette
+static PALETTES: OnceLock<HashMap<String, Palette>> = OnceLock::new();
 
 fn deserialize_palette<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
 where
@@ -51,8 +57,11 @@ where
 }
 
 fn load_palettes() -> Result<HashMap<String, Palette>, Box<dyn Error>> {
-    let data = include_str!("palettes.json");
-    let palettes_vec: Vec<Palette> = serde_json::from_str(data)?;
+    let compressed = include_bytes!("palettes.json.gz");
+    let mut decoder = GzDecoder::new(&compressed[..]);
+    let mut data = String::new();
+    decoder.read_to_string(&mut data)?;
+    let palettes_vec: Vec<Palette> = serde_json::from_str(&data)?;
 
     let map: HashMap<String, Palette> = palettes_vec
         .into_iter()
@@ -60,6 +69,10 @@ fn load_palettes() -> Result<HashMap<String, Palette>, Box<dyn Error>> {
         .collect();
 
     Ok(map)
+}
+
+fn palette_map() -> &'static HashMap<String, Palette> {
+    PALETTES.get_or_init(|| load_palettes().expect("Error reading palettes"))
 }
 
 /// Loads the colors for a palette by name.
@@ -79,8 +92,7 @@ fn load_palettes() -> Result<HashMap<String, Palette>, Box<dyn Error>> {
 /// assert_eq!(palette[0], "#FED789FF");
 /// ```
 pub fn load_palette(name: &str) -> Vec<String> {
-    let palettes: HashMap<String, Palette> = load_palettes().expect("Error reading palettes");
-    palettes
+    palette_map()
         .get(name)
         .expect("Palette not found")
         .palette
@@ -105,8 +117,7 @@ pub fn load_palette(name: &str) -> Vec<String> {
 /// assert_eq!(source, "The R package: {nationalparkcolors}");
 /// ```
 pub fn load_source(name: &str) -> String {
-    let palettes: HashMap<String, Palette> = load_palettes().expect("Error reading palettes");
-    palettes
+    palette_map()
         .get(name)
         .expect("Palette not found")
         .source
@@ -132,8 +143,7 @@ pub fn load_source(name: &str) -> String {
 /// assert_eq!(kind, "qualitative");
 /// ```
 pub fn load_kind(name: &str) -> String {
-    let palettes: HashMap<String, Palette> = load_palettes().expect("Error reading palettes");
-    palettes
+    palette_map()
         .get(name)
         .expect("Palette not found")
         .kind

@@ -37,6 +37,9 @@ fn main() {
 - `load_source()` returns the original source of the palette (for instance, an R package).
 - `load_kind()` returns the palette kind. It can be `qualitative`, `quantitative`, or `sequential`.
 
+> [!NOTE]
+> Palette data is embedded in the crate as compressed JSON. It is loaded lazily: the first call decompresses and parses the data, then later calls reuse the same in-memory lookup table.
+
 <br>
 
 ## Browse all palettes
