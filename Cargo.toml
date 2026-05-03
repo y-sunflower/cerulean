@@ -2,7 +2,13 @@
 name = "cerulean"
 version = "0.1.0"
 edition = "2024"
+description = "A collection of 2,500+ beautiful color palettes"
+readme = "README.md"
+homepage = "https://github.com/y-sunflower/cerulean"
+repository = "https://github.com/y-sunflower/cerulean"
 license = "GPL-3.0-or-later"
+license-file = "LICENSE.note"
+keywords = ["color", "palette", "visualization"]
 
 [dependencies]
 flate2 = "1.1.9"
