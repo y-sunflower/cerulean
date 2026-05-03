@@ -57,7 +57,7 @@ where
 }
 
 fn load_palettes() -> Result<HashMap<String, Palette>, Box<dyn Error>> {
-    let compressed = include_bytes!(concat!(env!("OUT_DIR"), "/palettes.json.gz"));
+    let compressed = include_bytes!("palettes.json.gz");
     let mut decoder = GzDecoder::new(&compressed[..]);
     let mut data = String::new();
     decoder.read_to_string(&mut data)?;
