@@ -1,7 +1,5 @@
 use std::num::ParseIntError;
 
-use ndarray::Array;
-
 fn hex_to_rgb(hex: &str) -> Result<Vec<u8>, ParseIntError> {
     let hex: &str = hex.strip_prefix("#").unwrap_or(hex);
 
@@ -10,6 +8,10 @@ fn hex_to_rgb(hex: &str) -> Result<Vec<u8>, ParseIntError> {
     let b: u8 = u8::from_str_radix(&hex[4..6], 16)?;
 
     return Ok(vec![r, g, b]);
+}
+
+fn rgb_to_hex(rgb: [u8; 3]) -> String {
+    format!("#{:02X}{:02X}{:02X}", rgb[0], rgb[1], rgb[2])
 }
 
 fn interpolation_2_colors(
@@ -26,16 +28,25 @@ fn interpolation_2_colors(
     let c1: Vec<f64> = color_1_rgb.iter().map(|&x| x as f64).collect();
     let c2: Vec<f64> = color_2_rgb.iter().map(|&x| x as f64).collect();
 
-    let ts = Array::linspace(0.0, 1.0, n);
-    let colors: Vec<[u8; 3]> = ts
-        .iter()
-        .map(|&t| {
-            let r = c1[0] + (c2[0] - c1[0]) * t;
-            let g = c1[1] + (c2[1] - c1[1]) * t;
-            let b = c1[2] + (c2[2] - c1[2]) * t;
-            [r.round() as u8, g.round() as u8, b.round() as u8]
-        })
-        .collect();
+    let mut result: Vec<String> = Vec::with_capacity(n);
 
-    return Ok(Vec::new());
+    for i in 0..n {
+        let t = if n > 1 {
+            i as f64 / (n - 1) as f64
+        } else {
+            0.0
+        };
+
+        let r = c1[0] as f64 + (c2[0] as f64 - c1[0] as f64) * t;
+        let g = c1[1] as f64 + (c2[1] as f64 - c1[1] as f64) * t;
+        let b = c1[2] as f64 + (c2[2] as f64 - c1[2] as f64) * t;
+
+        result.push(rgb_to_hex([
+            r.round() as u8,
+            g.round() as u8,
+            b.round() as u8,
+        ]));
+    }
+
+    return Ok(result);
 }
