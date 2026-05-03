@@ -17,6 +17,8 @@
 //! assert_eq!(kind, "qualitative");
 //! ```
 
+mod interpolation;
+
 use flate2::read::GzDecoder;
 use serde::{Deserialize, Deserializer};
 use std::collections::HashMap;
