@@ -8,6 +8,7 @@ homepage = "https://github.com/y-sunflower/cerulean"
 repository = "https://github.com/y-sunflower/cerulean"
 license-file = "LICENSE.note"
 keywords = ["color", "palette", "visualization"]
+exclude = [".github/*"]
 
 [dependencies]
 flate2 = "1.1.9"
