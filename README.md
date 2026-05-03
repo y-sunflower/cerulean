@@ -2,7 +2,7 @@
 
 `cerulean` is a lightweight **collection of palettes** (e.g., lists of colors) for Rust.
 
-Designing good color palettes is often harder than it looks: colors need to work well together, be accessible, match company branding, and more. Many people have developed palettes and made them freely available, especially in the R community.
+Designing good color palettes is often harder than it looks: colors need to work well together, be accessible, match company branding, and more. But many people have developed palettes and made them freely available, especially in the R community.
 
 `cerulean` makes those palettes accessible from Rust by providing a minimalist API for using them.
 
@@ -59,4 +59,4 @@ cargo add --git https://github.com/y-sunflower/cerulean
 
 `cerulean` is **heavily** inspired by, and relies on, the R package [paletteer](https://github.com/EmilHvitfeldt/paletteer) and all the original authors who created the palettes. See [LICENSE.note](LICENSE.note).
 
-A big thank-you to [Yan Holtz](https://www.yan-holtz.com/) for creating the Color Palette Finder, a [web app for browsing palettes](https://python-graph-gallery.com/color-palette-finder/).
+A big thank-you to [Yan Holtz](https://www.yan-holtz.com/) for creating the Color Palette Finder, the [web app for browsing palettes](https://python-graph-gallery.com/color-palette-finder/).
