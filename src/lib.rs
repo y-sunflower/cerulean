@@ -77,6 +77,30 @@ fn palette_map() -> &'static HashMap<String, Palette> {
     PALETTES.get_or_init(|| load_palettes().expect("Error reading palettes"))
 }
 
+/// Selects how many colors `load_colormap()` should return.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ColormapSize {
+    /// Return the bundled palette without interpolation.
+    Original,
+    /// Return this many colors by interpolating across the bundled palette.
+    Interpolate(usize),
+}
+
+impl From<usize> for ColormapSize {
+    fn from(n: usize) -> Self {
+        Self::Interpolate(n)
+    }
+}
+
+impl From<Option<usize>> for ColormapSize {
+    fn from(n: Option<usize>) -> Self {
+        match n {
+            Some(n) => Self::Interpolate(n),
+            None => Self::Original,
+        }
+    }
+}
+
 /// Loads the colors for a palette by name.
 ///
 /// Returns the colors as hexadecimal strings in their original order.
@@ -99,6 +123,43 @@ pub fn load_palette(name: &str) -> Vec<String> {
         .expect("Palette not found")
         .palette
         .clone()
+}
+
+/// Loads a palette as a continuous colormap.
+///
+/// Passing a number returns that many colors, linearly interpolated across the
+/// full palette. Passing `None` returns the bundled palette unchanged, matching
+/// `load_palette()`.
+///
+/// # Panics
+///
+/// Panics if the embedded palette data cannot be read, if `name` does not match
+/// a bundled palette, or if the palette contains an invalid hex color.
+///
+/// # Examples
+///
+/// ```
+/// let colormap = cerulean::load_colormap("Acadia", 256);
+///
+/// assert_eq!(colormap.len(), 256);
+/// ```
+///
+/// ```
+/// let palette = cerulean::load_colormap("Acadia", None);
+///
+/// assert_eq!(palette, cerulean::load_palette("Acadia"));
+/// ```
+pub fn load_colormap<N>(name: &str, n: N) -> Vec<String>
+where
+    N: Into<ColormapSize>,
+{
+    let palette = load_palette(name);
+
+    match n.into() {
+        ColormapSize::Original => palette,
+        ColormapSize::Interpolate(n) => interpolation::interpolate_palette(&palette, n)
+            .expect("Palette contains an invalid hex color"),
+    }
 }
 
 /// Loads the original source for a palette by name.
@@ -155,7 +216,7 @@ pub fn load_kind(name: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::{load_kind, load_palette};
+    use crate::{load_colormap, load_kind, load_palette};
 
     #[test]
     fn load_a_specific_palette() {
@@ -176,6 +237,23 @@ mod tests {
         let palette = load_palette("Wanteeed");
         let expected = vec!["#10345c".to_string(), "#ffacac".to_string()];
         assert_eq!(palette, expected)
+    }
+
+    #[test]
+    fn load_colormap_without_n_keeps_palette_behavior() {
+        assert_eq!(load_colormap("Acadia", None), load_palette("Acadia"))
+    }
+
+    #[test]
+    fn load_colormap_interpolates_to_requested_n() {
+        let colormap = load_colormap("Acadia", 3);
+        let expected = vec![
+            "#FED789FF".to_string(),
+            "#5D7B69FF".to_string(),
+            "#453947FF".to_string(),
+        ];
+
+        assert_eq!(colormap, expected)
     }
 
     #[test]
