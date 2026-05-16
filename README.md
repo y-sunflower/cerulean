@@ -14,26 +14,30 @@ Designing good color palettes is often harder than it looks: colors need to work
 ## Quick start
 
 ```rs
-use cerulean::{load_kind, load_palette, load_source};
+use cerulean::{load_colormap, load_kind, load_palette, load_source};
 
 fn main() {
     let palette = load_palette("Acadia");
+    let colormap = load_colormap("Acadia", 256);
     let source = load_source("Acadia");
     let kind = load_kind("Acadia");
 
     println!("palette: {:?}", palette);
-    println!("source: '{source}'");
+    println!("colormap length: {}", colormap.len());
     println!("kind: '{kind}'");
+    println!("source: '{source}'");
 }
 ```
 
 ```py
-#> palette: ["#FED789FF", "#023743FF", "#72874EFF", "#476F84FF", "#A4BED5FF", "#453947FF"]
-#> source: 'The R package: {nationalparkcolors}'
+#> palette: ["#FED789", "#023743", "#72874E", "#476F84", "#A4BED5", "#453947"]
+#> colormap length: 256
 #> kind: 'qualitative'
+#> source: 'The R package: {nationalparkcolors}'
 ```
 
 - `load_palette()` returns a `Vec<String>` with all the colors in the given palette.
+- `load_colormap()` returns an interpolated `Vec<String>` for a requested number of colors, such as `load_colormap("Acadia", 256)`. Passing `None` is equivalent to `load_palette()`.
 - `load_source()` returns the original source of the palette (for instance, an R package).
 - `load_kind()` returns the palette kind. It can be `qualitative`, `quantitative`, or `sequential`.
 
